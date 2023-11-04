@@ -12,6 +12,10 @@ namespace Umtahan_programii.Models
         [MaxLength(30)]
         public string SurnameOfStudent { get; set; }
         public int Class { get; set; }
+        public string FullName
+        {
+            get { return NameOfStudent + " " + SurnameOfStudent; }
+        }
 
         public ICollection<Exam> Exams { get; set; }
 

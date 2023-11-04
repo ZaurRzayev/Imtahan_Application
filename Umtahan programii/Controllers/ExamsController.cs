@@ -47,13 +47,65 @@ namespace Umtahan_programii.Controllers
         }
 
         // GET: Exams/Create
+        //public IActionResult Create()
+        //{
+        //    Exam exam = new();
+
+        //    ViewData["StudentId"] = new SelectList(_context.Students, "StudentId", "StudentId");
+        //    ViewData["SubjectCode"] = new SelectList(_context.Subjects, "SubjectCode", "SubjectCode");
+        //    //ViewBag.Subjects = new SelectList(_context.Subjects, "SubjectId", "SubjectName"); // Replace with your actual subject data
+        //    //ViewBag.Students = new SelectList(_context.Students, "StudentId", "FullName"); // Replace with your actual student data
+        //    ViewBag.Subjects = _context.Subjects.Select(s => new SelectListItem { Value = s.SubjectCode.ToString(), Text = s.NameOfSubject }).ToList();
+        //    ViewBag.Students = _context.Students.Select(s => new SelectListItem { Value = s.StudentId.ToString(), Text = s.FullName }).ToList();
+
+
+        //    var selectedSubjectCode = Request.Query["SubjectCode"];
+        //    var subjects = _context.Subjects.ToList();
+        //    // Filter students based on the selected subject's class
+        //    var students = _context.Students.ToList();
+        //    if (!string.IsNullOrEmpty(selectedSubjectCode))
+        //    {
+        //        var selectedSubject = subjects.FirstOrDefault(s => s.SubjectCode == selectedSubjectCode);
+        //        if (selectedSubject != null)
+        //        {
+        //            var subjectClass = selectedSubject.Class;
+        //            students = students.Where(s => s.Class == subjectClass).ToList();
+        //        }
+        //    }
+
+        //    return View(exam);
+        //}
+
+
+
         public IActionResult Create()
         {
             Exam exam = new();
-            ViewData["StudentId"] = new SelectList(_context.Students, "StudentId", "StudentId");
+
             ViewData["SubjectCode"] = new SelectList(_context.Subjects, "SubjectCode", "SubjectCode");
+            ViewBag.Subjects = _context.Subjects.Select(s => new SelectListItem { Value = s.SubjectCode.ToString(), Text = s.NameOfSubject }).ToList();
+
+            var selectedSubjectCode = Request.Query["SubjectCode"];
+            var subjects = _context.Subjects.ToList();
+            var students = _context.Students.ToList();
+
+            if (!string.IsNullOrEmpty(selectedSubjectCode))
+            {
+                var selectedSubject = subjects.FirstOrDefault(s => s.SubjectCode == selectedSubjectCode);
+                if (selectedSubject != null)
+                {
+                    var subjectClass = selectedSubject.Class;
+                    students = students.Where(s => s.Class == subjectClass).ToList();
+                }
+            }
+
+            ViewBag.Students = students.Select(s => new SelectListItem { Value = s.StudentId.ToString(), Text = s.FullName }).ToList();
+
             return View(exam);
         }
+
+
+
 
         // POST: Exams/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
