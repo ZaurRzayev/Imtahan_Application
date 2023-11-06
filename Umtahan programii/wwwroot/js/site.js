@@ -1,39 +1,38 @@
-﻿
-    //<script>
-    //    // Get references to the select elements
-    //    var subjectSelect = document.getElementById("subjectSelect");
-    //    var studentSelect = document.getElementById("studentSelect");
+﻿$(document).ready(function () {
+    var subjectSelect = $("#SubjectCode");
+    var studentSelect = $("#StudentId");
 
-    //    // Initial list of students
-    //    var allStudents = @Html.Raw(Json.Serialize(ViewBag.Students));
-    //    var allSubjects = @Html.Raw(Json.Serialize(ViewBag.Subjects));
+    var studentSubjectMapping = @Html.Raw(Json.Serialize(ViewBag.StudentSubjectMapping));
 
-    //    // Event listener for subject selection change
-    //    subjectSelect.addEventListener("change", function () {
-    //        // Get the selected subject's class
-    //        var selectedSubjectCode = subjectSelect.value;
+    onclik(){
+        console.log(this.studentSelect)
+    }
 
-    //    // Filter students based on the selected subject's class
-    //    var selectedSubject = allSubjects.find(function (subject) {
-    //            return subject.value === selectedSubjectCode;
-    //        });
+    subjectSelect.on("change", function () {
+        var selectedSubject = $(this).val();
 
-    //    var selectedClass = selectedSubject.getAttribute("data-class");
+        studentSelect.empty();
+        studentSelect.append($('<option>', {
+            value: "",
+            text: "Student Select",
+            class: "text-muted",
+            disabled: true,
+            selected: true
+        }));
 
-    //    // Filter students based on the selected class
-    //    var filteredStudents = allStudents.filter(function (student) {
-    //            return student.value.indexOf(selectedClass) !== -1;
-    //        });
+        if (selectedSubject) {
+            var studentsForSubject = studentSubjectMapping.filter(function (item) {
+                return item.SubjectCode === selectedSubject;
+            });
 
-    //        // Clear the current options in the student dropdown
-    //        while (studentSelect.options.length > 0) {
-    //        studentSelect.remove(0);
-    //        }
+            studentsForSubject.forEach(function (student) {
+                studentSelect.append($('<option>', {
+                    value: student.Student.StudentId,
+                    text: student.Student.FullName
+                }));
+            });
+        }
+    });
 
-    //    // Populate the student dropdown with filtered options
-    //    filteredStudents.forEach(function (student) {
-    //        studentSelect.options.add(new Option(student.text, student.value));
-    //        });
-    //    });
-    //</script>
-
+    subjectSelect.trigger("change");
+});

@@ -85,24 +85,32 @@ namespace Umtahan_programii.Controllers
             ViewData["SubjectCode"] = new SelectList(_context.Subjects, "SubjectCode", "SubjectCode");
             ViewBag.Subjects = _context.Subjects.Select(s => new SelectListItem { Value = s.SubjectCode.ToString(), Text = s.NameOfSubject }).ToList();
 
-            var selectedSubjectCode = Request.Query["SubjectCode"];
-            var subjects = _context.Subjects.ToList();
-            var students = _context.Students.ToList();
+            // Add this code to create the StudentSubjectMapping
+            ViewBag.StudentSubjectMapping = _context.Students
+                .GroupJoin(
+                    _context.Subjects,
+                    student => student.Class,
+                    subject => subject.Class,
+                    (student, subjects) => new { Student = student, Subjects = subjects.ToList() }
+                )
+                .SelectMany(
+                    x => x.Subjects,
+                    (x, subject) => new
+                    {
+                        Student = x.Student,
+                        SubjectCode = subject.SubjectCode,
+                        SubjectName = subject.NameOfSubject
+                    }
+                )
+                .ToList();
 
-            if (!string.IsNullOrEmpty(selectedSubjectCode))
-            {
-                var selectedSubject = subjects.FirstOrDefault(s => s.SubjectCode == selectedSubjectCode);
-                if (selectedSubject != null)
-                {
-                    var subjectClass = selectedSubject.Class;
-                    students = students.Where(s => s.Class == subjectClass).ToList();
-                }
-            }
-
-            ViewBag.Students = students.Select(s => new SelectListItem { Value = s.StudentId.ToString(), Text = s.FullName }).ToList();
+            ViewBag.Students = _context.Students.Select(s => new SelectListItem { Value = s.StudentId.ToString(), Text = s.FullName }).ToList();
 
             return View(exam);
         }
+
+
+
 
 
 
