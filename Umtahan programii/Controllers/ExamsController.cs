@@ -85,29 +85,23 @@ namespace Umtahan_programii.Controllers
             ViewData["SubjectCode"] = new SelectList(_context.Subjects, "SubjectCode", "SubjectCode");
             ViewBag.Subjects = _context.Subjects.Select(s => new SelectListItem { Value = s.SubjectCode.ToString(), Text = s.NameOfSubject }).ToList();
 
-            // Add this code to create the StudentSubjectMapping
-            ViewBag.StudentSubjectMapping = _context.Students
-                .GroupJoin(
-                    _context.Subjects,
-                    student => student.Class,
-                    subject => subject.Class,
-                    (student, subjects) => new { Student = student, Subjects = subjects.ToList() }
-                )
-                .SelectMany(
-                    x => x.Subjects,
-                    (x, subject) => new
-                    {
-                        Student = x.Student,
-                        SubjectCode = subject.SubjectCode,
-                        SubjectName = subject.NameOfSubject
-                    }
-                )
-                .ToList();
+            var subjects = _context.Subjects.ToList(); // Fetch all subjects
+            var students = _context.Students.ToList(); // Fetch all students
+
+            ViewBag.StudentSubjectMapping = students.Select(student => new
+            {
+                Student = student,
+                MatchingSubjects = subjects
+                    .Where(subject => subject.Class == student.Class)
+                    .Select(s => new SelectListItem { Value = s.SubjectCode, Text = s.NameOfSubject })
+                    .ToList()
+            });
 
             ViewBag.Students = _context.Students.Select(s => new SelectListItem { Value = s.StudentId.ToString(), Text = s.FullName }).ToList();
 
             return View(exam);
         }
+
 
 
 
