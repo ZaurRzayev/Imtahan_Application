@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Umtahan_programii.Data;
 using Umtahan_programii.Models;
+using Newtonsoft.Json;
+
 
 namespace Umtahan_programii.Controllers
 {
@@ -85,22 +87,50 @@ namespace Umtahan_programii.Controllers
             ViewData["SubjectCode"] = new SelectList(_context.Subjects, "SubjectCode", "SubjectCode");
             ViewBag.Subjects = _context.Subjects.Select(s => new SelectListItem { Value = s.SubjectCode.ToString(), Text = s.NameOfSubject }).ToList();
 
-            var subjects = _context.Subjects.ToList(); // Fetch all subjects
-            var students = _context.Students.ToList(); // Fetch all students
+            // Get the selected subject code from the exam object
+            var selectedSubjectCode = exam.SubjectCode;
 
-            ViewBag.StudentSubjectMapping = students.Select(student => new
+            if (!string.IsNullOrEmpty(selectedSubjectCode))
             {
-                Student = student,
-                MatchingSubjects = subjects
-                    .Where(subject => subject.Class == student.Class)
-                    .Select(s => new SelectListItem { Value = s.SubjectCode, Text = s.NameOfSubject })
-                    .ToList()
-            });
+                var selectedSubject = _context.Subjects.FirstOrDefault(s => s.SubjectCode == selectedSubjectCode);
 
-            ViewBag.Students = _context.Students.Select(s => new SelectListItem { Value = s.StudentId.ToString(), Text = s.FullName }).ToList();
+                if (selectedSubject != null)
+                {
+                    var subjectClass = selectedSubject.Class;
 
-            return View(exam);
+                    // Create a list of ViewBagStudentSubject objects
+                    var studentSubjectMappings = _context.Students
+                        .Where(s => s.Class == subjectClass)
+                        .Select(s => new ViewBagStudentSubject
+                        {
+                            StudentId = s.StudentId,
+                            SubjectCode = selectedSubjectCode,
+                            Student = s,
+                            Subject = selectedSubject,
+                            Exam = exam // Pass the exam object to ViewBagStudentSubject
+                        })
+                        .ToList();
+
+                    ViewBag.Students = studentSubjectMappings
+                        .Select(s => new SelectListItem { Value = s.StudentId.ToString(), Text = s.Student.FullName })
+                        .ToList();
+                }
+            }
+
+            // Pass the entire ViewBagStudentSubject object to the view
+            ViewBag.ViewBagStudentSubject = new ViewBagStudentSubject
+            {
+                Exam = exam,
+                Students = ViewBag.Students
+            };
+
+            return View();
         }
+
+
+
+
+
 
 
 
