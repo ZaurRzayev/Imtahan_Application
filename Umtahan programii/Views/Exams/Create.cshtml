@@ -13,29 +13,19 @@
         <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-            @* Display SubjectCode as a hidden field since it's part of the composite key *@
-            <input asp-for="SubjectCode" type="hidden" />
-
             <div class="form-group">
                 <label asp-for="Exam.SubjectCode" class="control-label"></label>
-                <select asp-for="Exam.SubjectCode" class="form-control" asp-items="ViewBag.Subjects"></select>
+                <select id="SubjectCode" asp-for="Exam.SubjectCode" class="form-control" asp-items="ViewBag.Subjects"></select>
             </div>
 
             <div class="form-group">
                 <label asp-for="StudentId" class="control-label"></label>
-                <select asp-for="StudentId" class="form-control" asp-items="ViewBag.Students"></select>
+                <select asp-for="StudentId" class="form-control" asp-items="@ViewBag.Students"></select>
             </div>
 
-            <div class="form-group">
-                <label asp-for="Exam.DateOfExam" class="control-label"></label>
-                <input asp-for="Exam.DateOfExam" class="form-control" />
-                <span asp-validation-for="Exam.DateOfExam" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Exam.FinalResult" class="control-label"></label>
-                <input asp-for="Exam.FinalResult" class="form-control" />
-                <span asp-validation-for="Exam.FinalResult" class="text-danger"></span>
-            </div>
+
+            <!-- Rest of your form inputs -->
+
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />
             </div>
@@ -49,11 +39,10 @@
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-    var subjects = @Html.Raw(Json.Serialize(ViewBag.Subjects)) || [];
     var studentsForSubject = @Html.Raw(Json.Serialize(ViewBag.Students)) || [];
 
     $(document).ready(function () {
-        var subjectSelect = $("#Exam_SubjectCode");
+        var subjectSelect = $("#SubjectCode");
         var studentSelect = $("#StudentId");
 
         subjectSelect.on("change", function () {
@@ -68,15 +57,10 @@
                 selected: true
             }));
 
-            if (subjects && subjects.length > 0 && selectedSubjectCode) {
-                // Find the selected subject
-                var selectedSubject = subjects.find(function (subject) {
-                    return subject.Value === selectedSubjectCode;
-                });
-
-                // Filter students based on the selected subject's code and class
+            if (studentsForSubject && studentsForSubject.length > 0 && selectedSubjectCode) {
+                // Filter students based on the selected subject's code
                 var filteredStudents = studentsForSubject.filter(function (student) {
-                    return student.SubjectCode === selectedSubjectCode && student.Subject.Class === selectedSubject.Class;
+                    return student.SubjectCode === selectedSubjectCode;
                 });
 
                 // Populate students based on the selected subject
