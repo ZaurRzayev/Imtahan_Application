@@ -1,21 +1,21 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
-using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Umtahan_programii.Models
 {
     public class ViewBagStudentSubject
     {
-        [Key]
         public int StudentId { get; set; }
-        [Key]
-        [MaxLength(3)]
         public string SubjectCode { get; set; }
 
         public Student Student { get; set; }
         public Subject Subject { get; set; }
 
-        public int ExamId;
-        public Exam Exam;
-        public List<SelectListItem> Students { get; set; }
+        public int ExamId { get; set; }
+        public Exam Exam { get; set; }
+        public int Class { get; set; }
+        //public List<SelectListItem> Students { get; set; }
+        public SelectList Students { get; set; }
+        public SelectList Subjects { get; set; }
     }
 }

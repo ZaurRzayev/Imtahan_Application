@@ -1,5 +1,6 @@
 ﻿@model Umtahan_programii.Models.ViewBagStudentSubject
 
+
 @{
     ViewData["Title"] = "Create";
 }
@@ -13,17 +14,33 @@
         <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-            @* Display SubjectCode as a hidden field since it's part of the composite key *@
-            <input asp-for="SubjectCode" type="hidden" />
-
             <div class="form-group">
-                <label asp-for="Exam.SubjectCode" class="control-label"></label>
-                <select asp-for="Exam.SubjectCode" class="form-control" asp-items="ViewBag.Subjects"></select>
+                <label>Select Subject</label>
+                <select id="SubjectCode" name="SubjectCode" class="form-control">
+                    <option value="">Select a Subject</option>
+                    @foreach (var subject in ViewBag.Subjects)
+                    {
+                        <option value="@subject.Value">@subject.Text</option>
+                    }
+                </select>
             </div>
 
             <div class="form-group">
-                <label asp-for="StudentId" class="control-label"></label>
-                <select asp-for="StudentId" class="form-control" asp-items="ViewBag.Students"></select>
+                <label for="ClassSelect" class="control-label">Class</label>
+                <select class="form-control" id="ClassSelect">
+                    <option value="">Select Class</option>
+                    @for (int i = 1; i <= 11; i++)
+                    {
+                        <option value="@i">@i</option>
+                    }
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Select Student</label>
+                <select id="StudentId" name="StudentId" class="form-control">
+                    <option value="">Select a Student</option>
+                </select>
             </div>
 
             <div class="form-group">
@@ -31,11 +48,13 @@
                 <input asp-for="Exam.DateOfExam" class="form-control" />
                 <span asp-validation-for="Exam.DateOfExam" class="text-danger"></span>
             </div>
+
             <div class="form-group">
                 <label asp-for="Exam.FinalResult" class="control-label"></label>
                 <input asp-for="Exam.FinalResult" class="form-control" />
                 <span asp-validation-for="Exam.FinalResult" class="text-danger"></span>
             </div>
+
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />
             </div>
@@ -49,48 +68,43 @@
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-    var subjects = @Html.Raw(Json.Serialize(ViewBag.Subjects)) || [];
-    var studentsForSubject = @Html.Raw(Json.Serialize(ViewBag.Students)) || [];
+    var students = @Html.Raw(Json.Serialize(ViewBag.Students)) || [];
 
     $(document).ready(function () {
-        var subjectSelect = $("#Exam_SubjectCode");
+        var subjectSelect = $("#SubjectCode");
+        var classSelect = $("#ClassSelect");
         var studentSelect = $("#StudentId");
+
+        function filterStudents(selectedSubjectCode, selectedClass) {
+            var filteredStudents = students.filter(function (student) {
+                return student.SubjectCode === selectedSubjectCode && student.Student.Class === selectedClass;
+            });
+
+            studentSelect.empty().append('<option value="">Select a Student</option>');
+
+            if (filteredStudents && filteredStudents.length > 0) {
+                $.each(filteredStudents, function (index, student) {
+                    studentSelect.append($('<option>', {
+                        value: student.StudentId,
+                        text: student.Student.FullName
+                    }));
+                });
+            }
+        }
 
         subjectSelect.on("change", function () {
             var selectedSubjectCode = $(this).val();
-
-            studentSelect.empty();
-            studentSelect.append($('<option>', {
-                value: "",
-                text: "Select a student",
-                class: "text-muted",
-                disabled: true,
-                selected: true
-            }));
-
-            if (subjects && subjects.length > 0 && selectedSubjectCode) {
-                // Find the selected subject
-                var selectedSubject = subjects.find(function (subject) {
-                    return subject.Value === selectedSubjectCode;
-                });
-
-                // Filter students based on the selected subject's code and class
-                var filteredStudents = studentsForSubject.filter(function (student) {
-                    return student.SubjectCode === selectedSubjectCode && student.Subject.Class === selectedSubject.Class;
-                });
-
-                // Populate students based on the selected subject
-                if (filteredStudents && filteredStudents.length > 0) {
-                    filteredStudents.forEach(function (student) {
-                        studentSelect.append($('<option>', {
-                            value: student.StudentId,
-                            text: student.Student.FullName
-                        }));
-                    });
-                }
-            }
+            var selectedClass = classSelect.val();
+            filterStudents(selectedSubjectCode, selectedClass);
         });
 
+        classSelect.on("change", function () {
+            var selectedClass = $(this).val();
+            var selectedSubjectCode = subjectSelect.val();
+            filterStudents(selectedSubjectCode, selectedClass);
+        });
+
+        // Trigger change on subject select initially
         subjectSelect.trigger("change");
     });
 </script>
