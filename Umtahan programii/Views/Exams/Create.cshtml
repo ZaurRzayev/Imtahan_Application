@@ -1,110 +1,40 @@
-﻿@model Umtahan_programii.Models.ViewBagStudentSubject
-
-
+﻿@model Umtahan_programii.Models.Exam
 @{
     ViewData["Title"] = "Create";
 }
-
 <h1>Create</h1>
-
 <h4>Exam</h4>
 <hr />
 <div class="row">
     <div class="col-md-4">
         <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-
             <div class="form-group">
-                <label>Select Subject</label>
-                <select id="SubjectCode" name="SubjectCode" class="form-control">
-                    <option value="">Select a Subject</option>
-                    @foreach (var subject in ViewBag.Subjects)
-                    {
-                        <option value="@subject.Value">@subject.Text</option>
-                    }
-                </select>
+                <label asp-for="SubjectCode" class="control-label"></label>
+                <!-- Update the select element to show the name of the subject instead of the code -->
+                <select asp-for="SubjectCode" class="form-control" asp-items="ViewBag.Subjects"></select>
             </div>
-
             <div class="form-group">
-                <label for="ClassSelect" class="control-label">Class</label>
-                <select class="form-control" id="ClassSelect">
-                    <option value="">Select Class</option>
-                    @for (int i = 1; i <= 11; i++)
-                    {
-                        <option value="@i">@i</option>
-                    }
-                </select>
+                <label asp-for="StudentId" class="control-label"></label>
+                <!-- Update the select element to show the full name of the student -->
+                <select asp-for="StudentId" class="form-control" asp-items="ViewBag.Students"></select>
             </div>
-
             <div class="form-group">
-                <label>Select Student</label>
-                <select id="StudentId" name="StudentId" class="form-control">
-                    <option value="">Select a Student</option>
-                </select>
+                <label asp-for="DateOfExam" class="control-label"></label>
+                <input asp-for="DateOfExam" class="form-control" />
+                <span asp-validation-for="DateOfExam" class="text-danger"></span>
             </div>
-
             <div class="form-group">
-                <label asp-for="Exam.DateOfExam" class="control-label"></label>
-                <input asp-for="Exam.DateOfExam" class="form-control" />
-                <span asp-validation-for="Exam.DateOfExam" class="text-danger"></span>
+                <label asp-for="FinalResult" class="control-label"></label>
+                <input asp-for="FinalResult" class="form-control" />
+                <span asp-validation-for="FinalResult" class="text-danger"></span>
             </div>
-
-            <div class="form-group">
-                <label asp-for="Exam.FinalResult" class="control-label"></label>
-                <input asp-for="Exam.FinalResult" class="form-control" />
-                <span asp-validation-for="Exam.FinalResult" class="text-danger"></span>
-            </div>
-
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />
             </div>
         </form>
     </div>
 </div>
-
 <div>
     <a asp-action="Index">Back to List</a>
 </div>
-
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script>
-    var students = @Html.Raw(Json.Serialize(ViewBag.Students)) || [];
-
-    $(document).ready(function () {
-        var subjectSelect = $("#SubjectCode");
-        var classSelect = $("#ClassSelect");
-        var studentSelect = $("#StudentId");
-
-        function filterStudents(selectedSubjectCode, selectedClass) {
-            var filteredStudents = students.filter(function (student) {
-                return student.SubjectCode === selectedSubjectCode && student.Student.Class === selectedClass;
-            });
-
-            studentSelect.empty().append('<option value="">Select a Student</option>');
-
-            if (filteredStudents && filteredStudents.length > 0) {
-                $.each(filteredStudents, function (index, student) {
-                    studentSelect.append($('<option>', {
-                        value: student.StudentId,
-                        text: student.Student.FullName
-                    }));
-                });
-            }
-        }
-
-        subjectSelect.on("change", function () {
-            var selectedSubjectCode = $(this).val();
-            var selectedClass = classSelect.val();
-            filterStudents(selectedSubjectCode, selectedClass);
-        });
-
-        classSelect.on("change", function () {
-            var selectedClass = $(this).val();
-            var selectedSubjectCode = subjectSelect.val();
-            filterStudents(selectedSubjectCode, selectedClass);
-        });
-
-        // Trigger change on subject select initially
-        subjectSelect.trigger("change");
-    });
-</script>

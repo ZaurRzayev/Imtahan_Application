@@ -22,11 +22,21 @@ namespace Umtahan_programii.Controllers
         }
 
         // GET: Exams
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
         {
-            var schoolContext = _context.Exams.Include(e => e.Student).Include(e => e.Subject);
-            return View(await schoolContext.ToListAsync());
+            // Fetch subjects from the database or any data source
+            var subjects = _context.Subjects.ToList();
+
+            // Set ViewBag.Subjects to be used in the view
+            ViewBag.Subjects = subjects;
+
+            // Fetch exams or any other necessary data
+            var exams = _context.Exams.ToList(); 
+
+            // Return the view with the model
+            return View(exams);
         }
+
 
         // GET: Exams/Details/5
         public async Task<IActionResult> Details(int? id)
@@ -51,43 +61,37 @@ namespace Umtahan_programii.Controllers
         // GET: Exams/Create
         public IActionResult Create()
         {
-            Exam exam = new Exam(); // Assuming Exam is a model class
-
-            ViewData["StudentId"] = new SelectList(_context.Students, "StudentId", "StudentId");
+            Exam exam = new();
             ViewData["SubjectCode"] = new SelectList(_context.Subjects, "SubjectCode", "SubjectCode");
+            ViewBag.Subjects = _context.Subjects.Select(s => new SelectListItem { Value = s.SubjectCode.ToString(), Text = s.NameOfSubject }).ToList();
 
-            ViewBag.Subjects = _context.Subjects
-                .Select(s => new SelectListItem { Value = s.SubjectCode.ToString(), Text = s.NameOfSubject })
+            ViewBag.StudentSubjectMapping = _context.Students
+                .GroupJoin(
+                    _context.Subjects,
+                    student => student.Class,
+                    subject => subject.Class,
+                    (student, subjects) => new { Student = student, Subjects = subjects.ToList() }
+                )
+                .SelectMany(
+                    x => x.Subjects,
+                    (x, subject) => new
+                    {
+                        Student = x.Student,
+                        SubjectCode = subject.SubjectCode,
+                        SubjectName = subject.NameOfSubject
+                    }
+                )
                 .ToList();
 
-            ViewBag.Students = _context.Students
-                .Select(s => new SelectListItem { Value = s.StudentId.ToString(), Text = s.FullName })
-                .ToList();
+            ViewBag.Students = _context.Students.Select(s => new SelectListItem { Value = s.StudentId.ToString(), Text = s.FullName }).ToList();
 
-            var selectedSubjectCode = Request.Query["SubjectCode"];
-            var subjects = _context.Subjects.ToList();
-            var students = _context.Students.ToList();
-
-            if (!string.IsNullOrEmpty(selectedSubjectCode))
-            {
-                var selectedSubject = subjects.FirstOrDefault(s => s.SubjectCode == selectedSubjectCode);
-                if (selectedSubject != null)
-                {
-                    var subjectClass = selectedSubject.Class;
-                    students = students.Where(s => s.Class == subjectClass).ToList();
-                }
-            }
-
-            ViewBag.FilteredStudents = new SelectList(students, "StudentId", "FullName");
-
-            return View("Create", new ViewBagStudentSubject
-            {
-                Exam = exam,
-                Students = new SelectList(students, "StudentId", "FullName"),
-                Subjects = new SelectList(subjects, "SubjectCode", "NameOfSubject")
-                // Other properties you might need in the view model
-            });
+            return View(exam);
         }
+
+
+
+
+
 
 
         //public IActionResult Create()

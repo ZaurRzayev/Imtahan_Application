@@ -4,50 +4,64 @@
     ViewData["Title"] = "Index";
 }
 
-<h1>Index</h1>
+<h1>Existing Exams</h1>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a asp-action="Create">Create New Exam</a>
 </p>
+
 <table class="table">
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.DateOfExam)
+                Date of Exam
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.FinalResult)
+                Final Result
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Subject)
+                Subject
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Student)
+                Student
             </th>
             <th></th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.DateOfExam)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.FinalResult)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Subject.SubjectCode)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Student.StudentId)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.ExamId">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.ExamId">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.ExamId">Delete</a>
-            </td>
-        </tr>
-}
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.DateOfExam)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.FinalResult)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Subject.SubjectCode)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Student.StudentId)
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.ExamId">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.ExamId">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.ExamId">Delete</a>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
+
+<h1>Create Exam</h1>
+
+<div>
+    <label>Select Subject:</label>
+    <ul>
+        @foreach (var subject in ViewBag.Subjects)
+        {
+            <li><a asp-action="Create" asp-controller="Exams" asp-route-SubjectCode="@subject.SubjectCode">@subject.NameOfSubject</a></li>
+        }
+    </ul>
+</div>
