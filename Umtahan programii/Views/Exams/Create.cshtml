@@ -38,3 +38,29 @@
 <div>
     <a asp-action="Index">Back to List</a>
 </div>
+
+@section scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $("#SubjectCode").change(function () {
+                var selectedSubjectCode = $(this).val();
+                $.ajax({
+                    url: '/Exam/GetStudentsBySubject',
+                    type: 'GET',
+                    data: { subjectCode: selectedSubjectCode },
+                    success: function (data) {
+                        $("#StudentId").empty();
+                        $.each(data, function (index, student) {
+                            $("#StudentId").append($('<option></option>').val(student.value).text(student.text));
+                        });
+                    },
+                    error: function (xhr, status, error) {
+                        console.error("Error occurred while fetching students:", error); // Log the error to console
+                        alert("An error occurred while fetching students. Please check the console for details.");
+                    }
+                });
+            });
+        });
+    </script>
+}

@@ -58,35 +58,55 @@ namespace Umtahan_programii.Controllers
             return View(exam);
         }
 
+
+        [HttpGet]
+        public IActionResult GetStudentsBySubject(string subjectCode)
+        {
+            var studentsForSubject = _context.Students
+                .Where(s => s.StudentSubjects.Any(sub => sub.SubjectCode == subjectCode))
+                .Select(s => new { value = s.StudentId.ToString(), text = s.FullName })
+                .ToList();
+
+            return Json(studentsForSubject);
+        }
+
+
+
         // GET: Exams/Create
         public IActionResult Create()
         {
-            Exam exam = new();
-            ViewData["SubjectCode"] = new SelectList(_context.Subjects, "SubjectCode", "SubjectCode");
-            ViewBag.Subjects = _context.Subjects.Select(s => new SelectListItem { Value = s.SubjectCode.ToString(), Text = s.NameOfSubject }).ToList();
+            Exam exam = new Exam(); // Assuming Exam is a model you want to pass to the view.
 
+            // Retrieving a list of subjects and passing it to the view using SelectList.
+            ViewData["SubjectCode"] = new SelectList(_context.Subjects, "SubjectCode", "SubjectCode");
+
+            // Passing a list of subjects to ViewBag using SelectListItem.
+            ViewBag.Subjects = _context.Subjects
+                .Select(s => new SelectListItem { Value = s.SubjectCode.ToString(), Text = s.NameOfSubject })
+                .ToList();
+
+            // Joining Students and Subjects based on the Class property and preparing data for ViewBag.
             ViewBag.StudentSubjectMapping = _context.Students
-                .GroupJoin(
-                    _context.Subjects,
+                .Join(_context.Subjects,
                     student => student.Class,
                     subject => subject.Class,
-                    (student, subjects) => new { Student = student, Subjects = subjects.ToList() }
-                )
-                .SelectMany(
-                    x => x.Subjects,
-                    (x, subject) => new
+                    (student, subject) => new
                     {
-                        Student = x.Student,
+                        Student = student,
                         SubjectCode = subject.SubjectCode,
                         SubjectName = subject.NameOfSubject
                     }
                 )
                 .ToList();
 
-            ViewBag.Students = _context.Students.Select(s => new SelectListItem { Value = s.StudentId.ToString(), Text = s.FullName }).ToList();
+            // Fetching students and passing them to the view using SelectListItem.
+            ViewBag.Students = _context.Students
+                .Select(s => new SelectListItem { Value = s.StudentId.ToString(), Text = s.FullName })
+                .ToList();
 
             return View(exam);
         }
+
 
 
 

@@ -32,4 +32,14 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapControllerRoute(
+        name: "getStudentsBySubject",
+        pattern: "Exam/GetStudentsBySubject", // Ensure this matches the URL in your AJAX call
+        defaults: new { controller = "Exam", action = "GetStudentsBySubject" });
+    // Other routes...
+});
+
+
 app.Run();
