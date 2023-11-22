@@ -1,40 +1,49 @@
 ﻿@model Umtahan_programii.Models.Exam
+
 @{
     ViewData["Title"] = "Create";
 }
+
 <h1>Create</h1>
 <h4>Exam</h4>
 <hr />
+
 <div class="row">
     <div class="col-md-4">
         <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
             <div class="form-group">
                 <label asp-for="SubjectCode" class="control-label"></label>
                 <!-- Update the select element to show the name of the subject instead of the code -->
                 <select asp-for="SubjectCode" class="form-control" asp-items="ViewBag.Subjects"></select>
             </div>
+
             <div class="form-group">
                 <label asp-for="StudentId" class="control-label"></label>
                 <!-- Update the select element to show the full name of the student -->
-                <select asp-for="StudentId" class="form-control" asp-items="ViewBag.Students"></select>
+                <select asp-for="StudentId" class="form-control"></select>
             </div>
+
             <div class="form-group">
                 <label asp-for="DateOfExam" class="control-label"></label>
                 <input asp-for="DateOfExam" class="form-control" />
                 <span asp-validation-for="DateOfExam" class="text-danger"></span>
             </div>
+
             <div class="form-group">
                 <label asp-for="FinalResult" class="control-label"></label>
                 <input asp-for="FinalResult" class="form-control" />
                 <span asp-validation-for="FinalResult" class="text-danger"></span>
             </div>
+
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />
             </div>
         </form>
     </div>
 </div>
+
 <div>
     <a asp-action="Index">Back to List</a>
 </div>
@@ -46,17 +55,23 @@
             $("#SubjectCode").change(function () {
                 var selectedSubjectCode = $(this).val();
                 $.ajax({
-                    url: '/Exam/GetStudentsBySubject',
+                    url: '/Exams/GetStudentsBySubject',
                     type: 'GET',
                     data: { subjectCode: selectedSubjectCode },
                     success: function (data) {
-                        $("#StudentId").empty();
+                        var studentDropdown = $("#StudentId");
+                        studentDropdown.empty(); // Clear existing options
+
+                        // Add a default option
+                        studentDropdown.append($('<option></option>').val('').text('Select a student'));
+
+                        // Append retrieved students to the dropdown
                         $.each(data, function (index, student) {
-                            $("#StudentId").append($('<option></option>').val(student.value).text(student.text));
+                            studentDropdown.append($('<option></option>').val(student.value).text(student.text));
                         });
                     },
                     error: function (xhr, status, error) {
-                        console.error("Error occurred while fetching students:", error); // Log the error to console
+                        console.error("Error occurred while fetching students:", error);
                         alert("An error occurred while fetching students. Please check the console for details.");
                     }
                 });

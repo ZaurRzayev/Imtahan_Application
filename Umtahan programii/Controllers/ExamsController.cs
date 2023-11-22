@@ -62,13 +62,28 @@ namespace Umtahan_programii.Controllers
         [HttpGet]
         public IActionResult GetStudentsBySubject(string subjectCode)
         {
-            var studentsForSubject = _context.Students
-                .Where(s => s.StudentSubjects.Any(sub => sub.SubjectCode == subjectCode))
-                .Select(s => new { value = s.StudentId.ToString(), text = s.FullName })
-                .ToList();
+            var studentSubjectMapping = _context.Students
+        .Join(
+            _context.Subjects,
+            student => student.Class,
+            subject => subject.Class,
+            (student, subject) => new
+            {
+                Student = student,
+                SubjectCode = subject.SubjectCode,
+                SubjectName = subject.NameOfSubject
+            }
+        )
+        .ToList();
 
-            return Json(studentsForSubject);
+            ViewBag.StudentSubjectMapping = studentSubjectMapping;
+        
+
+            // Handle the case where ViewBag.StudentSubjectMapping cannot be cast to the expected type
+            return Json(new List<object>());
         }
+
+
 
 
 
@@ -87,17 +102,18 @@ namespace Umtahan_programii.Controllers
 
             // Joining Students and Subjects based on the Class property and preparing data for ViewBag.
             ViewBag.StudentSubjectMapping = _context.Students
-                .Join(_context.Subjects,
-                    student => student.Class,
-                    subject => subject.Class,
-                    (student, subject) => new
-                    {
-                        Student = student,
-                        SubjectCode = subject.SubjectCode,
-                        SubjectName = subject.NameOfSubject
-                    }
-                )
-                .ToList();
+       .Join(
+           _context.Subjects,
+           student => student.Class,
+           subject => subject.Class,
+           (student, subject) => new
+           {
+               Student = student,
+               SubjectCode = subject.SubjectCode,
+               SubjectName = subject.NameOfSubject
+           }
+       )
+       .ToList();
 
             // Fetching students and passing them to the view using SelectListItem.
             ViewBag.Students = _context.Students
