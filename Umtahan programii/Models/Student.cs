@@ -8,9 +8,12 @@ namespace Umtahan_programii.Models
         [Key]
         public int StudentId { get; set; }
         [MaxLength(30)]
+        [Display(Name = "Şagirdin Adı")]
         public string NameOfStudent { get; set; }
         [MaxLength(30)]
+        [Display(Name = "Şagirdin Soyadı")]
         public string SurnameOfStudent { get; set; }
+        [Display(Name = "Sinif")]
         public int Class { get; set; }
 
         public string FullName

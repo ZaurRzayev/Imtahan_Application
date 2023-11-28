@@ -4,26 +4,26 @@
     ViewData["Title"] = "Index";
 }
 
-<h1>Existing Exams</h1>
+<h1>Imtahanlar</h1>
 
 <p>
-    <a asp-action="Create">Create New Exam</a>
+    <a asp-action="Create">Yeni Şagird Daxil Edin!</a>
 </p>
 
 <table class="table">
     <thead>
         <tr>
             <th>
-                Date of Exam
+                Imtahanın tarixi
             </th>
             <th>
-                Final Result
+                Yekun Qiymət
             </th>
             <th>
-                Subject
+                Dərs
             </th>
             <th>
-                Student
+                Şagird
             </th>
             <th></th>
         </tr>
@@ -39,29 +39,18 @@
                     @Html.DisplayFor(modelItem => item.FinalResult)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.Subject.SubjectCode)
+                    @Html.DisplayFor(modelItem => item.Subject.NameOfSubject)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.Student.StudentId)
+                    @Html.DisplayFor(modelItem => item.Student.FullName)
                 </td>
                 <td>
-                    <a asp-action="Edit" asp-route-id="@item.ExamId">Edit</a> |
-                    <a asp-action="Details" asp-route-id="@item.ExamId">Details</a> |
-                    <a asp-action="Delete" asp-route-id="@item.ExamId">Delete</a>
+                    <a asp-action="Edit" asp-route-id="@item.ExamId">Redakrə Et</a> |
+                    <a asp-action="Details" asp-route-id="@item.ExamId">Detallar</a> |
+                    <a asp-action="Delete" asp-route-id="@item.ExamId">Sil</a>
                 </td>
             </tr>
         }
     </tbody>
 </table>
 
-<h1>Create Exam</h1>
-
-<div>
-    <label>Select Subject:</label>
-    <ul>
-        @foreach (var subject in ViewBag.Subjects)
-        {
-            <li><a asp-action="Create" asp-controller="Exams" asp-route-SubjectCode="@subject.SubjectCode">@subject.NameOfSubject</a></li>
-        }
-    </ul>
-</div>

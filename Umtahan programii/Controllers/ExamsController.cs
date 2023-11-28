@@ -24,18 +24,15 @@ namespace Umtahan_programii.Controllers
         // GET: Exams
         public IActionResult Index()
         {
-            // Fetch subjects from the database or any data source
-            var subjects = _context.Subjects.ToList();
+            // Fetch exams along with related Student and Subject entities
+            var exams = _context.Exams
+                .Include(e => e.Student)  // Include the Student entity
+                .Include(e => e.Subject) // Optionally include Subject entity if needed
+                .ToList();
 
-            // Set ViewBag.Subjects to be used in the view
-            ViewBag.Subjects = subjects;
-
-            // Fetch exams or any other necessary data
-            var exams = _context.Exams.ToList(); 
-
-            // Return the view with the model
             return View(exams);
         }
+
 
 
         // GET: Exams/Details/5
@@ -62,26 +59,24 @@ namespace Umtahan_programii.Controllers
         [HttpGet]
         public IActionResult GetStudentsBySubject(string subjectCode)
         {
-            var studentSubjectMapping = _context.Students
-        .Join(
-            _context.Subjects,
-            student => student.Class,
-            subject => subject.Class,
-            (student, subject) => new
+            var subjectClass = _context.Subjects
+     .FirstOrDefault(sub => sub.SubjectCode == subjectCode)?.Class;
+
+            if (subjectClass != null)
             {
-                Student = student,
-                SubjectCode = subject.SubjectCode,
-                SubjectName = subject.NameOfSubject
+                var students = _context.Students
+                    .Where(s => s.Class == subjectClass)
+                    .Select(s => new { value = s.StudentId, text = s.FullName })
+                    .ToList();
+
+                return Json(students);
             }
-        )
-        .ToList();
 
-            ViewBag.StudentSubjectMapping = studentSubjectMapping;
-        
-
-            // Handle the case where ViewBag.StudentSubjectMapping cannot be cast to the expected type
+            // Handle the case where subjectClass is null
             return Json(new List<object>());
+
         }
+
 
 
 
@@ -218,14 +213,14 @@ namespace Umtahan_programii.Controllers
         // GET: Exams/Edit/5
         public async Task<IActionResult> Edit(int id)
         {
-            
-
             var exam = await _context.Exams.FindAsync(id);
-           
-            ViewData["StudentId"] = new SelectList(_context.Students, "StudentId", "StudentId", exam.StudentId);
-            ViewData["SubjectCode"] = new SelectList(_context.Subjects, "SubjectCode", "SubjectCode", exam.SubjectCode);
+
+            ViewData["StudentId"] = new SelectList(_context.Students, "StudentId", "FullName", exam.StudentId);
+            ViewData["SubjectCode"] = new SelectList(_context.Subjects, "SubjectCode", "NameOfSubject", exam.SubjectCode);
+
             return View(exam);
         }
+
 
         // POST: Exams/Edit
         [HttpPost]

@@ -4,8 +4,8 @@
     ViewData["Title"] = "Create";
 }
 
-<h1>Create</h1>
-<h4>Exam</h4>
+<h1>Yeni Şagird Yarat</h1>
+<h4>İmtahan</h4>
 <hr />
 
 <div class="row">
@@ -15,15 +15,18 @@
 
             <div class="form-group">
                 <label asp-for="SubjectCode" class="control-label"></label>
-                <!-- Update the select element to show the name of the subject instead of the code -->
-                <select asp-for="SubjectCode" class="form-control" asp-items="ViewBag.Subjects"></select>
+                <select asp-for="SubjectCode" class="form-control" asp-items="ViewBag.Subjects">
+                    <option value="">Fənni Seçin</option>
+                </select>
             </div>
 
             <div class="form-group">
                 <label asp-for="StudentId" class="control-label"></label>
-                <!-- Update the select element to show the full name of the student -->
-                <select asp-for="StudentId" class="form-control"></select>
+                <select asp-for="StudentId" class="form-control">
+                    <option value="">Şagirdi Seçin</option>
+                </select>
             </div>
+
 
             <div class="form-group">
                 <label asp-for="DateOfExam" class="control-label"></label>
@@ -54,27 +57,29 @@
         $(document).ready(function () {
             $("#SubjectCode").change(function () {
                 var selectedSubjectCode = $(this).val();
-                $.ajax({
-                    url: '/Exams/GetStudentsBySubject',
-                    type: 'GET',
-                    data: { subjectCode: selectedSubjectCode },
-                    success: function (data) {
-                        var studentDropdown = $("#StudentId");
-                        studentDropdown.empty(); // Clear existing options
+                var studentDropdown = $("#StudentId");
+                studentDropdown.empty(); // Clear existing options
 
-                        // Add a default option
-                        studentDropdown.append($('<option></option>').val('').text('Select a student'));
+                // Add a default option
+                studentDropdown.append($('<option></option>').val('').text('Select a student'));
 
-                        // Append retrieved students to the dropdown
-                        $.each(data, function (index, student) {
-                            studentDropdown.append($('<option></option>').val(student.value).text(student.text));
-                        });
-                    },
-                    error: function (xhr, status, error) {
-                        console.error("Error occurred while fetching students:", error);
-                        alert("An error occurred while fetching students. Please check the console for details.");
-                    }
-                });
+                if (selectedSubjectCode !== '') {
+                    $.ajax({
+                        url: '/Exams/GetStudentsBySubject',
+                        type: 'GET',
+                        data: { subjectCode: selectedSubjectCode },
+                        success: function (data) {
+                            // Append retrieved students to the dropdown
+                            $.each(data, function (index, student) {
+                                studentDropdown.append($('<option></option>').val(student.value).text(student.text));
+                            });
+                        },
+                        error: function (xhr, status, error) {
+                            console.error("Error occurred while fetching students:", error);
+                            alert("An error occurred while fetching students. Please check the console for details.");
+                        }
+                    });
+                }
             });
         });
     </script>

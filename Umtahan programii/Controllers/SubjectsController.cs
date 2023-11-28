@@ -56,11 +56,11 @@ namespace Umtahan_programii.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([Bind("SubjectCode,NameOfSubject,Class,NameOfTeacher,SurnameOfTeacher")] Subject subject)
         {
-          
-                _context.Add(subject);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            
+
+            _context.Add(subject);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+
         }
 
         // GET: Subjects/Edit/5
